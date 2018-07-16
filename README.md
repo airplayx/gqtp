@@ -4,8 +4,9 @@
 - 目标网站 [http://www.gqtp.com/](http://www.gqtp.com/) 
 - 已编译windows版本可执行程序，在release下载体验。
 
-<h4>依赖</h4> 
-		<code>go get -u github.com/gocolly/colly/...</code>
+<h4>安装</h4> 
+<code>go get -u github.com/bingoladen/gqtp</code>
+<code>go get -u github.com/gocolly/colly/...</code>
 
 <h4>说明</h4> 
 
