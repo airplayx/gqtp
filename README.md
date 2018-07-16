@@ -6,6 +6,7 @@
 
 <h4>安装</h4> 
 <code>go get -u github.com/bingoladen/gqtp</code>
+
 <code>go get -u github.com/gocolly/colly/...</code>
 
 <h4>说明</h4> 
