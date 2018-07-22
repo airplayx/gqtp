@@ -7,8 +7,6 @@
 <h4>安装</h4> 
 <code>go get -u github.com/bingoladen/gqtp</code>
 
-<code>go get -u github.com/gocolly/colly/...</code>
-
 <h4>说明</h4> 
 
 - 理论上可以成千上万个线程(或者说协程？)同时抓取，已测试目标服务器有点扛不住，但比普通服务器要友好。
