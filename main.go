@@ -177,7 +177,6 @@ func downFile(imgUrl string) {
 	if err != nil {
 		log.Error(err)
 	}
-	defer res.Body.Close()
 	imgUrl = strings.Replace(imgUrl, FileUrl, "", -1)
 	imgPath := strings.Split(imgUrl, "/")
 	imgPath = imgPath[:len(imgPath)-1]
