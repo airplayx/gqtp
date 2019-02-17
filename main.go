@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/bingoladen/gqtp/log"
 	. "github.com/bingoladen/gqtp/config"
+	"github.com/bingoladen/gqtp/log"
 	"github.com/gocolly/colly"
 	"io/ioutil"
 	"net/http"
@@ -35,7 +35,7 @@ func main() {
 				var ID = valid.FindAllString(href, -1)
 				goSync.Add(1)
 				TaskPool.Add()
-				go deep2Menu(strings.Join(ID, ""), &goSync, TaskPool)
+				go deep2Menu(c.Clone(), strings.Join(ID, ""), &goSync, TaskPool)
 			}
 		}
 	})
@@ -51,14 +51,11 @@ func main() {
 }
 
 //二级内页
-func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
+func deep2Menu(c *colly.Collector, parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 	var goSyncMe sync.WaitGroup
-	pageCount := deep2MenuPageCount(Url + "list_" + parentId + Suffix)
+	pageCount := deep2MenuPageCount(c.Clone(), Url+"list_"+parentId+Suffix)
 	//fmt.Println(Url+"list_"+parentId+Suffix, pageCount)
 	for i := 1; i <= pageCount; i++ {
-		var c = colly.NewCollector(
-			colly.Async(false),
-		)
 		page := strconv.Itoa(i)
 		//fmt.Println("当前分类："+parentId, " 页码："+page+"/", pageCount)
 		c.OnHTML("div[id=mainbodypul]", func(e *colly.HTMLElement) {
@@ -67,7 +64,7 @@ func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 			TaskPool := NewPool(5)
 			for i := 0; i < div.Length(); i++ {
 				a := div.Eq(i).Find("a").First()
-				href, _ := a.Attr("href")                        //内页链接
+				href, _ := a.Attr("href") //内页链接
 				var valid = regexp.MustCompile("[0-9]")
 				var id = valid.FindAllString(href, -1)
 				if id != nil {
@@ -76,7 +73,7 @@ func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 					var ID = valid.FindAllString(sl[len(sl)-1], -1)
 					goSyncMe.Add(1)
 					TaskPool.Add()
-					go deep3Menu(strings.Join(ID, ""), &goSyncMe, TaskPool)
+					go deep3Menu(c.Clone(), strings.Join(ID, ""), &goSyncMe, TaskPool)
 				}
 			}
 		})
@@ -93,8 +90,7 @@ func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 }
 
 //二级内容总页码
-func deep2MenuPageCount(link string) int {
-	var c = colly.NewCollector()
+func deep2MenuPageCount(c *colly.Collector, link string) int {
 	var count = 1
 	c.OnHTML("ul", func(e *colly.HTMLElement) {
 		//总页码
@@ -122,12 +118,9 @@ func deep2MenuPageCount(link string) int {
 }
 
 //三级内页
-func deep3Menu(ID string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
-	pageCount := deep3MenuPageCount(Url + ID + Suffix)
+func deep3Menu(c *colly.Collector, ID string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
+	pageCount := deep3MenuPageCount(c.Clone(), Url+ID+Suffix)
 	for i := 1; i <= pageCount; i++ {
-		var c = colly.NewCollector(
-			colly.Async(true),
-		)
 		page := strconv.Itoa(i)
 		c.OnHTML("h1[class=center]", func(e *colly.HTMLElement) {
 			//当前页主内容
@@ -141,15 +134,13 @@ func deep3Menu(ID string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 		c.Visit(Url + ID + "_" + page + Suffix)
 		c.Wait()
 	}
-
 	time.Sleep(time.Second)
 	defer n.Done()
 	defer TaskPool.Done()
 }
 
 //三级内页总页码
-func deep3MenuPageCount(link string) int {
-	var c = colly.NewCollector()
+func deep3MenuPageCount(c *colly.Collector, link string) int {
 	var count = 1
 	c.OnHTML("h1[class=center]", func(e *colly.HTMLElement) {
 		//总页码
