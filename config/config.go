@@ -8,6 +8,6 @@ var (
 
 func init() {
 	Url = "http://www.gqtp.com/"
-	FileUrl = "http://images.gqtp.com/"
+	FileUrl = "http://images.gqtp.com/gqtp/"
 	Suffix = ".html"
 }

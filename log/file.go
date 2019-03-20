@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	logSavePath = ".writable/logs/"
+	logSavePath = ".logs/"
 	logFileExt  = "log"
 )
 
