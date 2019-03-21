@@ -5,6 +5,9 @@ import (
 	. "github.com/bingoladen/gqtp/config"
 	"github.com/bingoladen/gqtp/log"
 	"github.com/gocolly/colly"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,8 +54,8 @@ func main() {
 func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 	var goSyncMe sync.WaitGroup
 	pageCount := deep2MenuPageCount(Url + "list_" + parentId + Suffix)
+	c := colly.NewCollector()
 	for i := 1; i <= pageCount; i++ {
-		c := colly.NewCollector()
 		//fmt.Println(parentId) //*图片父级标识
 		c.OnHTML("div[id=mainbodypul]", func(e *colly.HTMLElement) {
 			div := e.DOM.Find("div[class!=listmainrowstag]")
@@ -115,19 +118,17 @@ func deep2MenuPageCount(link string) int {
 func deep3Menu(ID string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 	pageCount := deep3MenuPageCount(Url + ID + Suffix)
 	for i := 1; i <= pageCount; i++ {
-		go func(Url, ID string, i int) {
-			c := colly.NewCollector()
-			c.OnHTML("h1[class=center]", func(e *colly.HTMLElement) {
-				if imgUrl, ok := e.DOM.Closest("div").Find("img").First().Attr("src"); ok {
-					downFile(imgUrl)
-				}
-			})
-			c.OnError(func(r *colly.Response, err error) {
-				log.Error("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err.Error())
-			})
-			c.Visit(Url + ID + "_" + strconv.Itoa(i) + Suffix)
-			c.Wait()
-		}(Url, ID, i)
+		c := colly.NewCollector()
+		c.OnHTML("h1[class=center]", func(e *colly.HTMLElement) {
+			if imgUrl, ok := e.DOM.Closest("div").Find("img").First().Attr("src"); ok {
+				downFile(imgUrl)
+			}
+		})
+		c.OnError(func(r *colly.Response, err error) {
+			log.Error("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err.Error())
+		})
+		c.Visit(Url + ID + "_" + strconv.Itoa(i) + Suffix)
+		c.Wait()
 	}
 	time.Sleep(time.Second)
 	defer n.Done()
@@ -156,32 +157,32 @@ var sum = 0
 func downFile(imgUrl string) {
 	sum++
 	defer fmt.Println(sum, "目标文件:"+imgUrl)
-	//res, err := http.Get(imgUrl)
-	//if err != nil {
-	//	log.Error(err)
-	//}
-	//if err != nil {
-	//	log.Error(err)
-	//}
-	//imgUrl = strings.Replace(imgUrl, FileUrl, "", -1)
-	//imgPath := strings.Split(imgUrl, "/")
-	//imgPath = imgPath[:len(imgPath)-1]
-	//os.MkdirAll(strings.Join(imgPath, "/"), os.ModePerm)
-	//var fh *os.File
-	//_, fErr := os.Stat(imgUrl)
-	//if fErr != nil {
-	//	fh, err = os.Create(imgUrl)
-	//	if err != nil {
-	//		log.Error(fErr, err)
-	//	}
-	//} else {
-	//	fh, err = os.Open(imgUrl)
-	//	if err != nil {
-	//		log.Error(err)
-	//	}
-	//}
-	//imgByte, _ := ioutil.ReadAll(res.Body)
-	//fh.Write(imgByte)
-	//fh.Close()
-	//res.Body.Close()
+	res, err := http.Get(imgUrl)
+	if err != nil {
+		log.Error(err)
+	}
+	if err != nil {
+		log.Error(err)
+	}
+	imgUrl = strings.Replace(imgUrl, FileUrl, "", -1)
+	imgPath := strings.Split(imgUrl, "/")
+	imgPath = imgPath[:len(imgPath)-1]
+	os.MkdirAll(strings.Join(imgPath, "/"), os.ModePerm)
+	var fh *os.File
+	_, fErr := os.Stat(imgUrl)
+	if fErr != nil {
+		fh, err = os.Create(imgUrl)
+		if err != nil {
+			log.Error(fErr, err)
+		}
+	} else {
+		fh, err = os.Open(imgUrl)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+	imgByte, _ := ioutil.ReadAll(res.Body)
+	fh.Write(imgByte)
+	fh.Close()
+	res.Body.Close()
 }
