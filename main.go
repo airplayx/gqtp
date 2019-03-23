@@ -54,9 +54,8 @@ func main() {
 func deep2Menu(parentId string, n *sync.WaitGroup, TaskPool *ConcurrentPool) {
 	var goSyncMe sync.WaitGroup
 	pageCount := deep2MenuPageCount(Url + "list_" + parentId + Suffix)
-	c := colly.NewCollector()
 	for i := 1; i <= pageCount; i++ {
-		//fmt.Println(parentId) //*图片父级标识
+		c := colly.NewCollector()
 		c.OnHTML("div[id=mainbodypul]", func(e *colly.HTMLElement) {
 			div := e.DOM.Find("div[class!=listmainrowstag]")
 			TaskPool := NewPool(5)
