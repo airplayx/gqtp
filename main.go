@@ -160,9 +160,7 @@ func downFile(imgUrl string) {
 	res, err := http.Get(imgUrl)
 	if err != nil {
 		log.Error(err)
-	}
-	if err != nil {
-		log.Error(err)
+		return
 	}
 	imgUrl = strings.Replace(imgUrl, FileUrl, "", -1)
 	imgPath := strings.Split(imgUrl, "/")
@@ -174,11 +172,13 @@ func downFile(imgUrl string) {
 		fh, err = os.Create(imgUrl)
 		if err != nil {
 			log.Error(fErr, err)
+			return
 		}
 	} else {
 		fh, err = os.Open(imgUrl)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 	}
 	imgByte, _ := ioutil.ReadAll(res.Body)
