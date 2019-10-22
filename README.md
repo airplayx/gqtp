@@ -1,5 +1,5 @@
 # 多线程爬虫的简单实践
-![image](https://github.com/bingoladen/gqtp/blob/master/show.gif)
+![image](show.gif)
 =====================
 - 目标网站 [http://www.gqtp.com/](http://www.gqtp.com/) 
 - 已编译windows版本可执行程序，在release下载体验。
